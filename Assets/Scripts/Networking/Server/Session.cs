@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Networking.Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -9,7 +10,7 @@ using UnityGame.Scripts.Network.Shared;
 
 namespace Assets.Scripts.Networking.Server
 {
-    class Session
+    partial class Session
     {
         private int _id;
         private TcpClient _client;
@@ -17,6 +18,8 @@ namespace Assets.Scripts.Networking.Server
         private byte[] _buffer;
 
         private const int bufferSize = 4096;
+
+        private Queue<ByteBuffer> _packetQueue;
         
         public Session(int id, TcpClient client)
         {
@@ -66,7 +69,9 @@ namespace Assets.Scripts.Networking.Server
                 byte[] incomingData = new byte[dataLength];
                 Array.Copy(_buffer, incomingData, dataLength);
 
-                HandlePacket(incomingData);
+                ByteBuffer buff = new ByteBuffer(incomingData);
+                _packetQueue.Enqueue(buff);
+
                 _stream.BeginRead(_buffer, 0, bufferSize, OnReceivedData, null);
             }
             catch(Exception ex)
@@ -75,9 +80,43 @@ namespace Assets.Scripts.Networking.Server
             }
         }
 
-        private void HandlePacket(byte[] incomingData)
-        {
+        internal void Update(double diff)
+        { 
+            lock (_packetQueue)
+            {
+                while (_packetQueue.Count > 0)
+                {
+                    ByteBuffer buff = _packetQueue.Dequeue();
 
+                    HandlePacket(buff);
+                }
+            }
+        }
+
+        private void HandlePacket(ByteBuffer packet)
+        {
+            int opcode = packet.ReadInt();
+
+            if (_OpcodeHandler.TryGetValue((Opcode)opcode, out OpcodeHandler handler))
+            {
+                handler.Invoke(packet);
+            }
+            else
+            {
+                Debug.LogError("Recieved unknown packet, disconnecting client");
+                SessionManager.Instance().KickSession(this);
+            }
+        }
+
+        internal void Kick()
+        {
+            _client.Close();
+            _stream.Close();
+        }
+
+        internal int GetId()
+        {
+            return _id;
         }
     }
 }

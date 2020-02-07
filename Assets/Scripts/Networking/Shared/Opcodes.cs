@@ -12,6 +12,5 @@ namespace Assets.Scripts.Networking.Shared
         SMSG_AUTH = 0x001,
         CMSG_AUTH_ACK = 0x002,
         SMSG_PLAYER_JOINED = 0x003,
-        Test = 0x004
     }
 }

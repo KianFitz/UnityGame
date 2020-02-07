@@ -61,13 +61,7 @@ public class Client : MonoBehaviour
             { Opcode.SMSG_AUTH, AuthHandler.HandleServerAuthMSG },
             { Opcode.CMSG_AUTH_ACK, Handle_NULL },
             { Opcode.SMSG_PLAYER_JOINED, WorldHandler.NewPlayerSpawned },
-            { Opcode.Test, Test }
         };
-    }
-
-    private void Test(ByteBuffer data)
-    {
-        Debug.Log("Recieved Test");
     }
 
     private void Handle_NULL(ByteBuffer data)
