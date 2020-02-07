@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityGame.Scripts.Network.Shared;
 
 namespace Assets.Scripts.Networking.Server
 {
@@ -21,6 +22,23 @@ namespace Assets.Scripts.Networking.Server
         {
             _id = id;
             _client = client;
+        }
+
+        public void SendDirectMessage(ByteBuffer buff)
+        {
+            try
+            {
+                if (_client != null)
+                {
+                    byte[] buffer = buff.AsByteArray();
+
+                    _stream.BeginWrite(buffer, 0, buffer.Length, null, null);
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.LogError($"Failed to send data to player {_id}. Error {ex}");
+            }
         }
 
         public void Connect()
@@ -49,6 +67,7 @@ namespace Assets.Scripts.Networking.Server
                 Array.Copy(_buffer, incomingData, dataLength);
 
                 HandlePacket(incomingData);
+                _stream.BeginRead(_buffer, 0, bufferSize, OnReceivedData, null);
             }
             catch(Exception ex)
             {

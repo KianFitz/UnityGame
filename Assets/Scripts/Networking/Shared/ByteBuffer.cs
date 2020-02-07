@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Networking.Shared;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,9 +23,10 @@ namespace UnityGame.Scripts.Network.Shared
             _readBuffer = AsByteArray();
         }
 
-        public ByteBuffer(int opcode)
+        public ByteBuffer(Opcode opcode)
         {
-            Write(opcode);
+            _buffer = new List<byte>(4096);
+            Write((int)opcode);
         }
 
         #region Read Data

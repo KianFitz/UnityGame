@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Assets.Scripts.Networking.Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityGame.Scripts.Network.Shared;
 
 namespace Assets.Scripts.Networking.Server
 {
@@ -87,6 +89,7 @@ namespace Assets.Scripts.Networking.Server
         internal void OnUpdate(double diff)
         {
             HandleSessionQueue();
+
         }
 
         private void HandleSessionQueue()
