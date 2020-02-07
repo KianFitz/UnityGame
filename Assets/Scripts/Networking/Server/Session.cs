@@ -10,7 +10,7 @@ using UnityGame.Scripts.Network.Shared;
 
 namespace Assets.Scripts.Networking.Server
 {
-    partial class Session
+    public partial class Session
     {
         private int _id;
         private TcpClient _client;
@@ -25,6 +25,8 @@ namespace Assets.Scripts.Networking.Server
         {
             _id = id;
             _client = client;
+
+            _packetQueue = new Queue<ByteBuffer>();
         }
 
         public void SendDirectMessage(ByteBuffer buff)
@@ -97,7 +99,7 @@ namespace Assets.Scripts.Networking.Server
         {
             int opcode = packet.ReadInt();
 
-            if (_OpcodeHandler.TryGetValue((Opcode)opcode, out OpcodeHandler handler))
+            if (ServerHandler.OpcodeTable.TryGetValue((Opcode)opcode, out ServerHandler.OpcodeHandler handler))
             {
                 handler.Invoke(packet);
             }
@@ -117,6 +119,12 @@ namespace Assets.Scripts.Networking.Server
         internal int GetId()
         {
             return _id;
+        }
+
+        internal static void Handle_NULL(ByteBuffer data)
+        {
+            Debug.LogError("Recieved incorrect packet");
+            SessionManager.Instance().KickSession(this);
         }
     }
 }

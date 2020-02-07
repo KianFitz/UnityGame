@@ -16,8 +16,7 @@ namespace Assets.Scripts.Networking.Server
         private Queue<TcpClient> _connectQueue;
         private DateTime _lastServerTime, _currServerTime;
 
-        private delegate void OpcodeHandler(ByteBuffer data, Session session);
-        private static Dictionary<Opcode, OpcodeHandler> _OpcodeHandler;
+        
 
         internal int MaxPlayers { get; set; } = 16;
 
@@ -47,28 +46,11 @@ namespace Assets.Scripts.Networking.Server
                 ServerManager.Start();
                 Debug.Log("Started Server..");
 
-                InitialisePackets();
             }
             catch
             {
                 Debug.LogError("Failed to start server");
             }
-        }
-
-        private void InitialisePackets()
-        {
-            _OpcodeHandler = new Dictionary<Opcode, OpcodeHandler>()
-            {
-                { Opcode.SMSG_AUTH, Handle_NULL},
-                { Opcode.CMSG_AUTH_ACK, Handle_NULL },
-                { Opcode.SMSG_PLAYER_JOINED, Handle_NULL },
-            };
-        }
-
-        private void Handle_NULL(ByteBuffer data, Session session)
-        {
-            Debug.LogError("Recieved incorrect packet");
-            session.Kick();
         }
 
         private void FixedUpdate()
