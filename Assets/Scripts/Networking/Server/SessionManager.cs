@@ -16,7 +16,13 @@ namespace Assets.Scripts.Networking.Server
         private Queue<TcpClient> _connectQueue;
         private DateTime _lastServerTime, _currServerTime;
 
-        
+        [SerializeField] internal Vector3 _serverSpawnPosition;
+
+        internal void SendToAll(ByteBuffer buff)
+        {
+            foreach (var session in _currentSessions)
+                session.Value.SendDirectMessage(buff);
+        }
 
         internal int MaxPlayers { get; set; } = 16;
 
@@ -45,7 +51,6 @@ namespace Assets.Scripts.Networking.Server
 
                 ServerManager.Start();
                 Debug.Log("Started Server..");
-
             }
             catch
             {
@@ -123,6 +128,7 @@ namespace Assets.Scripts.Networking.Server
                     Session newUser = new Session(newSessionId, client);
                     _currentSessions[newSessionId] = newUser;
                     newUser.Connect();
+                    newUser.SendAuth();
                 }
             }
         }

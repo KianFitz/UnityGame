@@ -16,7 +16,7 @@ namespace Assets.Scripts.Networking.Server
         public static Dictionary<Opcode, OpcodeHandler> OpcodeTable = new Dictionary<Opcode, OpcodeHandler>()
         {
             { Opcode.SMSG_AUTH, Handle_NULL},
-            { Opcode.CMSG_AUTH_ACK, Handle_NULL },
+            { Opcode.CMSG_AUTH_ACK, PlayerHandler.HandleAuthAckOpcode },
             { Opcode.SMSG_PLAYER_JOINED, Handle_NULL},
         };
 

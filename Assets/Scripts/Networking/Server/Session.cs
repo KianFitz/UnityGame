@@ -12,14 +12,15 @@ namespace Assets.Scripts.Networking.Server
 {
     public partial class Session
     {
-        private int _id;
         private TcpClient _client;
         private NetworkStream _stream;
         private byte[] _buffer;
+        private int _id;
 
         private const int bufferSize = 4096;
 
         private Queue<ByteBuffer> _packetQueue;
+        private Player _player;
         
         public Session(int id, TcpClient client)
         {
@@ -101,7 +102,7 @@ namespace Assets.Scripts.Networking.Server
 
             if (ServerHandler.OpcodeTable.TryGetValue((Opcode)opcode, out ServerHandler.OpcodeHandler handler))
             {
-                handler.Invoke(packet);
+                handler.Invoke(packet, this);
             }
             else
             {
@@ -121,10 +122,11 @@ namespace Assets.Scripts.Networking.Server
             return _id;
         }
 
-        internal static void Handle_NULL(ByteBuffer data)
+        internal void SendAuth()
         {
-            Debug.LogError("Recieved incorrect packet");
-            SessionManager.Instance().KickSession(this);
+            ByteBuffer buff = new ByteBuffer(Opcode.SMSG_AUTH);
+            buff.Write(_id);
+            SendDirectMessage(buff);
         }
     }
 }
