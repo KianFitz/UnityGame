@@ -605,7 +605,7 @@ PrefabInstance:
     - target: {fileID: 5641640042638611230, guid: 96a3981d466a3d94da871b1342397b89,
         type: 3}
       propertyPath: near clip plane
-      value: 1
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 5641640042638611230, guid: 96a3981d466a3d94da871b1342397b89,
         type: 3}
