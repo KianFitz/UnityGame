@@ -24,12 +24,6 @@ public class Chunk : MonoBehaviour {
     private float tUnit;
 
     private void Start() {
-        chunkX = (int)transform.position.x;
-        chunkY = (int)transform.position.y;
-        chunkZ = (int)transform.position.z;
-        tUnit = 1f / tResolution;
-        mesh = GetComponent<MeshFilter>().mesh;
-        col = GetComponent<MeshCollider>();
         Init();
     }
 
@@ -42,12 +36,18 @@ public class Chunk : MonoBehaviour {
     }
 
     private void Init() {
+        chunkX = (int)transform.position.x;
+        chunkY = (int)transform.position.y;
+        chunkZ = (int)transform.position.z;
+        tUnit = 1f / tResolution;
+        mesh = GetComponent<MeshFilter>().mesh;
+        col = GetComponent<MeshCollider>();
+
         blocks = new bool[chunkSize, chunkSize, chunkSize];
         for (int x = 0; x < chunkSize; x++) {
             for (int z = 0; z < chunkSize; z++) {
                 for (int y = 0; y < chunkSize; y++) {
-                    float noise = Noise.CaveNoise(x + chunkX, z + chunkZ, MapManager.scale, MapManager.frequency, MapManager.amplitude, MapManager.octaves, MapManager.seed);
-                    blocks[x, y, z] = !isEmpty || !(y + noise + chunkY > 0 && y + noise + chunkY < MapManager.mapHeight * 0.75f * chunkSize);
+                    blocks[x, y, z] = true;
                 }
             }
         }
@@ -159,10 +159,10 @@ public class Chunk : MonoBehaviour {
         newTriangles.Add(faceCount * 4 + 2); //3
         newTriangles.Add(faceCount * 4 + 3); //4
 
-        newUV.Add(new Vector2(tUnit * texturePos.x + tUnit, tUnit * texturePos.y));
-        newUV.Add(new Vector2(tUnit * texturePos.x + tUnit, tUnit * texturePos.y + tUnit));
-        newUV.Add(new Vector2(tUnit * texturePos.x, tUnit * texturePos.y + tUnit));
-        newUV.Add(new Vector2(tUnit * texturePos.x, tUnit * texturePos.y));
+        newUV.Add(new Vector2(1, 1));
+        newUV.Add(new Vector2(1, 1));
+        newUV.Add(new Vector2(1, 1));
+        newUV.Add(new Vector2(1, 1));
 
         faceCount++;
     }
