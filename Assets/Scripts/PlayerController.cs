@@ -12,13 +12,17 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private float gravity;
     [SerializeField] private float drag = 0.5f;
     [SerializeField] private AnimationCurve jumpAcceleration;
+    [SerializeField] private float playerWidth = 1;
+    [SerializeField] private float wallRunDistance = 0.1f;
+    [SerializeField] private float wallRunGravity = 0.2f;
 
     private CameraController cameraController;
     private CharacterController controller;
 
     public Vector3 moveDirection;
-    public Vector3 gravityVector { get; private set; }
+    public Vector3 gravityVector;
     public bool isJumping { get; private set; }
+    private bool isWallRunning;
 
     void Start() {
         isJumping = false;
@@ -27,11 +31,10 @@ public class PlayerController : MonoBehaviour {
     }
 
     void Update() {
-        transform.eulerAngles = cameraController.rotation;
+        if (!isWallRunning) transform.eulerAngles = cameraController.rotation;
 
         moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         Vector3.ClampMagnitude(moveDirection, 1);
-        moveDirection = transform.TransformDirection(moveDirection);
 
         if (!isJumping && Input.GetKey(KeyCode.Space)) {
             isJumping = true;
@@ -45,7 +48,37 @@ public class PlayerController : MonoBehaviour {
 
         moveDirection *= moveSpeed;
 
+        WallRun();
+
+        moveDirection = transform.TransformDirection(moveDirection);
+
         controller.Move((gravityVector + moveDirection) * Time.deltaTime);
+    }
+
+    private void WallRun() {
+        //Debug.DrawRay(transform.position, transform.right * (playerWidth / 2 + wallRunDistance), Color.red);
+        //Debug.DrawRay(transform.position, -transform.right * (playerWidth / 2 + wallRunDistance), Color.blue);
+        if (!controller.isGrounded) {
+            RaycastHit hit;
+            if (Input.GetKey(KeyCode.D) && Physics.Raycast(transform.position, transform.right, out hit, playerWidth / 2 + wallRunDistance)) {
+                isWallRunning = true;
+                transform.rotation = Quaternion.LookRotation(-Vector3.Cross(hit.normal, Vector3.up));
+                moveDirection.x = 0;
+                gravityVector.y *= wallRunGravity;
+                moveDirection.z = Mathf.Lerp(runSpeed, walkSpeed, Time.deltaTime * buildUpSpeed);
+
+            } else if(Input.GetKey(KeyCode.A) && Physics.Raycast(transform.position, -transform.right, out hit, playerWidth / 2 + wallRunDistance)) {
+                isWallRunning = true;
+                transform.rotation = Quaternion.LookRotation(Vector3.Cross(hit.normal, Vector3.up));
+                moveDirection.x = 0;
+                gravityVector.y *= wallRunGravity;
+                moveDirection.z = Mathf.Lerp(runSpeed, walkSpeed, Time.deltaTime * buildUpSpeed);
+
+            }
+            else {
+                isWallRunning = false;
+            }
+        }
     }
 
     private Vector3 ApplyGravity() {
