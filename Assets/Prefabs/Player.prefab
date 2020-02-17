@@ -678,7 +678,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9007a25a33f418644ae867cb5aef60c4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -760,4 +760,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  playerWidth: 1
+  wallRunDistance: 0.1
+  wallRunGravity: 0.2
+  tiltAngle: 10
+  tiltSpeed: 15
   moveDirection: {x: 0, y: 0, z: 0}
+  gravityVector: {x: 0, y: 0, z: 0}

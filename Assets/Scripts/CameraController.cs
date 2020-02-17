@@ -7,6 +7,7 @@ public class CameraController : MonoBehaviour {
     private float mouseSens;
     private float cameraX;
     private float cameraY;
+    public float cameraZ { get; set; }
 
 
     public Vector3 rotation { get; private set; }
@@ -25,6 +26,6 @@ public class CameraController : MonoBehaviour {
 
         rotation = new Vector3(0, cameraX, 0);
 
-        transform.eulerAngles = new Vector3(cameraY, cameraX, 0);
+        transform.eulerAngles = new Vector3(cameraY, cameraX, cameraZ);
     }
 }

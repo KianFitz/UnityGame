@@ -12,26 +12,40 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private float gravity;
     [SerializeField] private float drag = 0.5f;
     [SerializeField] private AnimationCurve jumpAcceleration;
+    [SerializeField] private AnimationCurve slideAcceleration;
     [SerializeField] private float playerWidth = 1;
     [SerializeField] private float wallRunDistance = 0.1f;
     [SerializeField] private float wallRunGravity = 0.2f;
+    [SerializeField] private float tiltAngle = 10;
+    [SerializeField] private float tiltSpeed = 15;
+    [SerializeField] private float crouchHeight = 0.5f;
+    [SerializeField] private float crouchTransitionSpeed = 15;
+    [SerializeField] private float crouchSpeed = 0.5f;
+    [SerializeField] private float idleHeight = 0.9f;
 
     private CameraController cameraController;
+    private GameObject camera;
     private CharacterController controller;
+    private float wallRunTime;
+
+    private RaycastHit hit;
 
     public Vector3 moveDirection;
     public Vector3 gravityVector;
     public bool isJumping { get; private set; }
     private bool isWallRunning;
+    [SerializeField] private bool isSliding;
 
     void Start() {
         isJumping = false;
         controller = GetComponent<CharacterController>();
-        cameraController = transform.GetChild(0).GetComponent<CameraController>();
+        camera = transform.GetChild(0).gameObject;
+        cameraController = camera.GetComponent<CameraController>();
     }
 
     void Update() {
-        if (!isWallRunning) transform.eulerAngles = cameraController.rotation;
+        //if (!isWallRunning) transform.eulerAngles = cameraController.rotation;
+        if (!isWallRunning) RestRotation(transform.eulerAngles);
 
         moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         Vector3.ClampMagnitude(moveDirection, 1);
@@ -44,7 +58,9 @@ public class PlayerController : MonoBehaviour {
             gravityVector += ApplyGravity();
         }
 
-        moveSpeed = Input.GetKey(KeyCode.LeftShift) ? Mathf.Lerp(runSpeed, walkSpeed, Time.deltaTime * buildUpSpeed) : Mathf.Lerp(walkSpeed, runSpeed, Time.deltaTime * buildUpSpeed);
+        moveSpeed = Input.GetKey(KeyCode.LeftShift) && !isSliding ? Mathf.Lerp(runSpeed, walkSpeed, Time.deltaTime * buildUpSpeed) : Mathf.Lerp(walkSpeed, runSpeed, Time.deltaTime * buildUpSpeed);
+
+        Crouch();
 
         moveDirection *= moveSpeed;
 
@@ -56,29 +72,82 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void WallRun() {
-        //Debug.DrawRay(transform.position, transform.right * (playerWidth / 2 + wallRunDistance), Color.red);
-        //Debug.DrawRay(transform.position, -transform.right * (playerWidth / 2 + wallRunDistance), Color.blue);
-        if (!controller.isGrounded) {
-            RaycastHit hit;
+        if (!controller.isGrounded && moveDirection.z > 10) {
             if (Input.GetKey(KeyCode.D) && Physics.Raycast(transform.position, transform.right, out hit, playerWidth / 2 + wallRunDistance)) {
                 isWallRunning = true;
-                transform.rotation = Quaternion.LookRotation(-Vector3.Cross(hit.normal, Vector3.up));
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(-Vector3.Cross(hit.normal, Vector3.up)), 1);
                 moveDirection.x = 0;
                 gravityVector.y *= wallRunGravity;
                 moveDirection.z = Mathf.Lerp(runSpeed, walkSpeed, Time.deltaTime * buildUpSpeed);
+                TiltCamera(1);
 
             } else if(Input.GetKey(KeyCode.A) && Physics.Raycast(transform.position, -transform.right, out hit, playerWidth / 2 + wallRunDistance)) {
                 isWallRunning = true;
-                transform.rotation = Quaternion.LookRotation(Vector3.Cross(hit.normal, Vector3.up));
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(Vector3.Cross(hit.normal, Vector3.up)), 1);
                 moveDirection.x = 0;
                 gravityVector.y *= wallRunGravity;
                 moveDirection.z = Mathf.Lerp(runSpeed, walkSpeed, Time.deltaTime * buildUpSpeed);
-
+                TiltCamera(-1);
             }
             else {
+                wallRunTime = 0;
+                RestCamera();
+                RestRotation(transform.eulerAngles);
                 isWallRunning = false;
             }
         }
+        else {
+            RestCamera();
+            RestRotation(transform.eulerAngles);
+            isWallRunning = false;
+        }
+    }
+
+    private void Crouch() {
+        if (Input.GetKey(KeyCode.LeftControl)) {
+            MoveCamera(-1);
+            moveSpeed *= crouchSpeed;
+        }
+        else {
+            MoveCamera(1);
+        }
+    }
+
+    private void MoveCamera(int sign) {
+        if (cameraController.transform.localPosition.y > crouchHeight && sign == -1) {
+            cameraController.transform.localPosition += new Vector3(0, sign * crouchTransitionSpeed * Time.deltaTime, 0);
+            if (cameraController.transform.localPosition.y < crouchHeight) {
+                cameraController.transform.localPosition = Vector3.up * crouchHeight;
+            }
+        }
+        else if (cameraController.transform.localPosition.y < idleHeight && sign == 1) {
+            cameraController.transform.localPosition += new Vector3(0, sign * crouchTransitionSpeed * Time.deltaTime, 0);
+            if (cameraController.transform.localPosition.y > idleHeight) {
+                cameraController.transform.localPosition = Vector3.up * idleHeight;
+            }
+        }
+    }
+
+    private void TiltCamera(int sign) {
+        if (Mathf.Abs(cameraController.cameraZ) < tiltAngle)
+            cameraController.cameraZ += sign * tiltSpeed * Time.deltaTime;
+    }
+
+    private void RestCamera() {
+        if (cameraController.cameraZ != 0) {
+            if (cameraController.cameraZ < 0) {
+                if (cameraController.cameraZ > -0.5) cameraController.cameraZ = 0;
+                else cameraController.cameraZ += tiltSpeed * Time.deltaTime;
+            }
+            else if (cameraController.cameraZ > 0) {
+                if (cameraController.cameraZ < 0.5) cameraController.cameraZ = 0;
+                else cameraController.cameraZ -= tiltSpeed * Time.deltaTime;
+            }
+        }
+    }
+
+    private void RestRotation(Vector3 wallRunRotation) {
+        transform.rotation = Quaternion.Slerp(Quaternion.Euler(wallRunRotation), Quaternion.Euler(cameraController.rotation), Time.deltaTime * 10);
     }
 
     private Vector3 ApplyGravity() {
