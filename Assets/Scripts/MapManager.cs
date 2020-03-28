@@ -60,9 +60,9 @@ public class MapManager : MonoBehaviour {
         ClearSphere(LQXZ, MY, UQXZ, 20);
 
         ClearCube(10, MY + 4, 10, 9);
-        ClearCube(mapWidth * Chunk.chunkSize - 10, MY + 4, mapWidth * Chunk.chunkSize - 10, 9);
-        ClearCube(mapWidth * Chunk.chunkSize - 10, MY + 4, 10, 9);
-        ClearCube(10, MY + 4, mapWidth * Chunk.chunkSize - 10, 9);
+        ClearCube(mapWidth * Chunk.chunkSize - 11, MY + 4, mapWidth * Chunk.chunkSize - 11, 9);
+        ClearCube(mapWidth * Chunk.chunkSize - 11, MY + 4, 10, 9);
+        ClearCube(10, MY + 4, mapWidth * Chunk.chunkSize - 11, 9);
 
         ClearCuboid(MXZ, MY, MXZ, 40, 40, (int)(mapHeight / 2 * Chunk.chunkSize * 0.9f));
 

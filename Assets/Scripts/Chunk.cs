@@ -159,10 +159,10 @@ public class Chunk : MonoBehaviour {
         newTriangles.Add(faceCount * 4 + 2); //3
         newTriangles.Add(faceCount * 4 + 3); //4
 
+        newUV.Add(new Vector2(1, 0));
         newUV.Add(new Vector2(1, 1));
-        newUV.Add(new Vector2(1, 1));
-        newUV.Add(new Vector2(1, 1));
-        newUV.Add(new Vector2(1, 1));
+        newUV.Add(new Vector2(0, 1));
+        newUV.Add(new Vector2(0, 0));
 
         faceCount++;
     }
