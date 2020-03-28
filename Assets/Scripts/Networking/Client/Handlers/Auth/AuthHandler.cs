@@ -17,6 +17,8 @@ namespace Assets.Scripts.Networking.Client.Handlers.Auth
             thisClient.ClientID = playerId;
 
             AskServerForSpawn(playerId);
+
+            Client.Instance().ConnectUDP();
         }
 
         private static void AskServerForSpawn(int playerId)
@@ -24,7 +26,7 @@ namespace Assets.Scripts.Networking.Client.Handlers.Auth
             ByteBuffer buffer = new ByteBuffer(Shared.Opcode.CMSG_AUTH_ACK);
             buffer.Write(playerId);
 
-            Client.Instance().SendMessageToServer(buffer);
+            Client.Instance().SendTCPMessageToServer(buffer);
         }
     }
 }

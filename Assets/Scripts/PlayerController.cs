@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Networking.Client;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityGame.Scripts.Network.Shared;
 
 public class PlayerController : MonoBehaviour {
     private Vector3 spawn = new Vector3(127, 50, 127);
@@ -46,6 +48,20 @@ public class PlayerController : MonoBehaviour {
         moveDirection *= moveSpeed;
 
         controller.Move((gravityVector + moveDirection) * Time.deltaTime);
+
+        SendPositionToServer();
+    }
+
+    private void SendPositionToServer()
+    {
+        using (ByteBuffer buffer = new ByteBuffer(Assets.Scripts.Networking.Shared.Opcode.MSG_PLAYER_POSITION))
+        {
+            buffer.Write(Client.Instance().ClientID);
+            buffer.Write(this.transform.position);
+            
+            Client.Instance().SendUDPMessageToServer(buffer);
+        }
+
     }
 
     private Vector3 ApplyGravity() {

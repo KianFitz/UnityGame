@@ -18,10 +18,18 @@ namespace Assets.Scripts.Networking.Server
 
         [SerializeField] internal Vector3 _serverSpawnPosition;
 
-        internal void SendToAll(ByteBuffer buff)
+        internal void SendToAll(ByteBuffer buff, Session exclude = null)
         {
             foreach (var session in _currentSessions)
-                session.Value.SendDirectMessage(buff);
+                if (exclude is null || exclude != session.Value)
+                    session.Value.SendDirectMessage(buff);
+        }
+
+        internal void SendUDPToAll(ByteBuffer buffer, Session exclude = null)
+        {
+            foreach (var session in _currentSessions)
+                if (exclude is null || exclude != session.Value)
+                    session.Value.SendUDPData(buffer);
         }
 
         internal int MaxPlayers { get; set; } = 16;
@@ -56,6 +64,14 @@ namespace Assets.Scripts.Networking.Server
             {
                 Debug.LogError("Failed to start server");
             }
+        }
+
+        internal Session GetSessionById(int clientId)
+        {
+            if (_currentSessions.ContainsKey(clientId))
+                return _currentSessions[clientId];
+            else
+                return null;        
         }
 
         private void FixedUpdate()
@@ -107,7 +123,7 @@ namespace Assets.Scripts.Networking.Server
         internal void KickSession(Session session)
         {
             session.Kick();
-            _currentSessions[session.GetId()] = null;
+            _currentSessions.Remove(session.GetId());
         }
 
         private void HandleSessionQueue()
@@ -127,10 +143,16 @@ namespace Assets.Scripts.Networking.Server
 
                     Session newUser = new Session(newSessionId, client);
                     _currentSessions[newSessionId] = newUser;
-                    newUser.Connect();
+                    newUser.ConnectTcp();
                     newUser.SendAuth();
                 }
             }
+        }
+
+        internal IEnumerable<KeyValuePair<int, Player>> GetAllPlayers()
+        {
+            foreach (int playerId in _currentSessions.Keys)
+                yield return new KeyValuePair<int, Player>(playerId, _currentSessions[playerId].GetPlayer());
         }
     }
 }

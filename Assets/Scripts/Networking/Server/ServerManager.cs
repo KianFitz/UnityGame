@@ -9,6 +9,7 @@ using Assets.Scripts.Networking.Server;
 public class ServerManager
 {
     static TcpListener _server;
+    static UdpManager _udpManager;
 
     public static int Port = 27930;
 
@@ -24,7 +25,6 @@ public class ServerManager
         TcpClient client = _server.EndAcceptTcpClient(ar);
         _server.BeginAcceptTcpClient(new AsyncCallback(OnClientConnected), null);
         Debug.Log("OnClientConncted");
-
 
         SessionManager.Instance().AddSessionToQueue(client);
     }

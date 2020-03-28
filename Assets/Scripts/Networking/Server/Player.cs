@@ -7,17 +7,17 @@ using UnityEngine;
 
 namespace Assets.Scripts.Networking.Server
 {
-    class Player : MonoBehaviour
+    class Player
     {
         private int _id;
         private string _name;
+        private Vector3 _position;
+        private Vector3 _rotation;
+
 
         public int Id { get => _id; set => _id = value; }
         public string Name { get => _name; set => _name = value; }
-
-        public void Initialise()
-        {
-
-        }
+        public Vector3 Rotation { get => _rotation; set => _rotation = value; }
+        public Vector3 Position { get => _position; set => _position = value; }
     }
 }

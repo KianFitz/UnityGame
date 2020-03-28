@@ -81,6 +81,11 @@ namespace UnityGame.Scripts.Network.Shared
             }
         }
 
+        internal void Reset()
+        {
+            _readPos = 0;
+        }
+
         public int ReadInt(bool _moveReadPos = true)
         {
             if (_buffer.Count > _readPos)
@@ -235,6 +240,11 @@ namespace UnityGame.Scripts.Network.Shared
             Write(inc.x);
             Write(inc.y);
             Write(inc.z);
+        }
+
+        internal bool Empty()
+        {
+            return (_buffer is null || _readBuffer is null || _buffer.Count == 0 || _buffer.Count == 0);
         }
 
         public void Write(Quaternion inc)

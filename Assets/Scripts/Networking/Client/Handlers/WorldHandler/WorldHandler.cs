@@ -16,9 +16,30 @@ namespace Assets.Scripts.Networking.Client.Handlers.WorldHandler
             Vector3 spawnPosition = data.ReadVector3();
 
             Client thisClient = Client.Instance();
+            bool localPlayer = clientId == thisClient.ClientID;
 
-            GameObject go = (clientId == thisClient.ClientID) ? thisClient.localPlayerPrefab : thisClient.remotePlayerPrefab;
-            GameObject.Instantiate(go, spawnPosition, Quaternion.identity);
+            GameObject go = (localPlayer) ? thisClient.localPlayerPrefab : thisClient.remotePlayerPrefab;
+
+            GameObject createdGo = GameObject.Instantiate(go, spawnPosition, Quaternion.identity);
+            createdGo.transform.name = clientId.ToString();
+        }
+
+        internal static void PlayerPosition(ByteBuffer data)
+        {
+            int clientId = data.ReadInt();
+            Vector3 newPosition = data.ReadVector3();
+
+            GameObject go = GameObject.Find(clientId.ToString());
+            go.transform.position = newPosition;
+        }
+
+        internal static void PlayerRotation(ByteBuffer data)
+        {
+            int clientId = data.ReadInt();
+            Vector3 newRotation = data.ReadVector3();
+
+            GameObject go = GameObject.Find(clientId.ToString());
+            go.transform.rotation = Quaternion.Euler(newRotation);
         }
     }
 }
