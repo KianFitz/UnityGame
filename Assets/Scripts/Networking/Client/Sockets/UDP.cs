@@ -23,8 +23,6 @@ namespace Assets.Scripts.Networking.Client.Sockets
 
         internal void Connect(int localPort)
         {
-            Debug.LogError("Connect hit with local port: " + localPort);
-
             _socket = new UdpClient(localPort);
 
             Connect();
@@ -33,8 +31,6 @@ namespace Assets.Scripts.Networking.Client.Sockets
         internal override void Connect()
         {
             _socket.Connect(_endPoint);
-            Debug.Log("Socket connected expected. Socket state: " + _socket.Client.Connected);
-
             _socket.BeginReceive(OnReceiveData, null);
 
             using (ByteBuffer buffer = new ByteBuffer(0))
@@ -48,8 +44,6 @@ namespace Assets.Scripts.Networking.Client.Sockets
         {
             try
             {
-                Debug.Log("a");
-
                 byte[] _data = _socket.EndReceive(ar, ref _endPoint);
                 _socket.BeginReceive(OnReceiveData, null);
 

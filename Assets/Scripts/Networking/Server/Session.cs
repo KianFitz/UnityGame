@@ -65,7 +65,6 @@ namespace Assets.Scripts.Networking.Server
             {
                 try
                 {
-                    Debug.Log("Received Data");
                     int dataLength = _stream.EndRead(result);
                     if (dataLength <= 0)
                     {

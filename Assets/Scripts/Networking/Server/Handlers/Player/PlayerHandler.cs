@@ -44,7 +44,6 @@ namespace Assets.Scripts.Networking.Server
 
             if (clientId != session.GetId())
             {
-                Debug.Log("a");
                 //Packet forging... cheating
                 return;
             }

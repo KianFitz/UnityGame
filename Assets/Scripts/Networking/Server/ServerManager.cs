@@ -24,7 +24,6 @@ public class ServerManager
     {
         TcpClient client = _server.EndAcceptTcpClient(ar);
         _server.BeginAcceptTcpClient(new AsyncCallback(OnClientConnected), null);
-        Debug.Log("OnClientConncted");
 
         SessionManager.Instance().AddSessionToQueue(client);
     }

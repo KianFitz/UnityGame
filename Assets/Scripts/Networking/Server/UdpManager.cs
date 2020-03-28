@@ -79,14 +79,11 @@ namespace Assets.Scripts.Networking.Server
 
         internal void SendUDPData(IPEndPoint endpoint, ByteBuffer packet)
         {
-            Debug.Log("1");
             if (endpoint is null)
                 return;
 
-            Debug.Log("2");
             byte[] sendData = packet.AsByteArray();
 
-            Debug.Log("3");
             _udpServer.BeginSend(sendData, sendData.Length, endpoint, null, null);
         }
     }

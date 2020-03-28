@@ -80,9 +80,6 @@ namespace Assets.Scripts.Networking.Client.Sockets
                 {
                     byte[] buffer = buff.AsByteArray();
 
-                    //int opcode = buff.ReadInt(false);
-                    //Debug.Log("Sent opcode " + (Opcode)opcode);
-
                     _stream.BeginWrite(buffer, 0, buffer.Length, null, null);
                 }
             }
