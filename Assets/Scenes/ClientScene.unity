@@ -38,13 +38,13 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 11
-  m_GIWorkflowMode: 1
+  m_GIWorkflowMode: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -273,7 +273,7 @@ MonoBehaviour:
   Ip: 127.0.0.1
   Port: 27930
   ClientID: 0
-  localPlayerPrefab: {fileID: 614190597806902934, guid: 96a3981d466a3d94da871b1342397b89,
+  localPlayerPrefab: {fileID: 5641640042934757461, guid: 96a3981d466a3d94da871b1342397b89,
     type: 3}
   remotePlayerPrefab: {fileID: 458952375427479148, guid: 1e12a02b113dde54fa1eae32851b3bde,
     type: 3}

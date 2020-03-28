@@ -25,14 +25,14 @@ namespace Assets.Scripts.Networking.Server
 
         internal static void SendAllOldPlayersToNewJoiner(Session session)
         {
-            foreach (var pair in SessionManager.Instance().GetAllPlayers())
+            foreach (Player plr in SessionManager.Instance().GetAllPlayers())
             {
-                if (pair.Key == session.GetId())
+                if (plr.Id == session.GetId())
                     continue;
 
                 ByteBuffer buff = new ByteBuffer(Opcode.SMSG_PLAYER_JOINED);
-                buff.Write(pair.Key);
-                buff.Write(pair.Value.Position);
+                buff.Write(plr.Id);
+                buff.Write(plr.Position);
 
                 session.SendDirectMessage(buff);
             }

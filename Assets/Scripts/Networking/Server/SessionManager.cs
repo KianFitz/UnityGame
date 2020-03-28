@@ -149,10 +149,10 @@ namespace Assets.Scripts.Networking.Server
             }
         }
 
-        internal IEnumerable<KeyValuePair<int, Player>> GetAllPlayers()
+        internal IEnumerable<Player> GetAllPlayers()
         {
-            foreach (int playerId in _currentSessions.Keys)
-                yield return new KeyValuePair<int, Player>(playerId, _currentSessions[playerId].GetPlayer());
+            foreach (Session session in _currentSessions.Values)
+                yield return session.GetPlayer();
         }
     }
 }

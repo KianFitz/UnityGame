@@ -22,7 +22,6 @@ namespace Assets.Scripts.Networking.Server
 
             Session _ownerSession;
 
-
             internal TCPImplementation(TcpClient client, int clientid, Session owner)
             {
                 _client = client;
@@ -246,6 +245,7 @@ namespace Assets.Scripts.Networking.Server
             }
             catch (Exception ex)
             {
+                Debug.LogException(ex);
                 Debug.Log("Packet dump: " + packet.AsByteArray());
             }
         }

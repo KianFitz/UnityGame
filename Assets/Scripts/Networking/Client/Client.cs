@@ -16,8 +16,6 @@ namespace Assets.Scripts.Networking.Client
         private static Client _instance;
         public static Client Instance() => _instance;
 
-
-
         public string Ip = "127.0.0.1";
         public int Port = 27930;
         public int ClientID;
