@@ -67,7 +67,7 @@ namespace Assets.Scripts.Networking.Server
                     int dataLength = _stream.EndRead(result);
                     if (dataLength <= 0)
                     {
-                        //DisconnectUser();
+                        SessionManager.Instance().KickSession(_ownerSession);
                         return;
                     }
 
@@ -116,7 +116,6 @@ namespace Assets.Scripts.Networking.Server
         internal void SendUDPData(ByteBuffer buffer)
         {
             _udp.SendData(buffer);
-            //UdpManager.Instance().SendUDPData(this._udp.EndPoint, buffer);
         }
 
         class UDPImplementation

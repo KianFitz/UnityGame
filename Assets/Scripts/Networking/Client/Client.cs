@@ -60,6 +60,7 @@ namespace Assets.Scripts.Networking.Client
             { Opcode.SMSG_AUTH, AuthHandler.HandleServerAuthMSG },
             { Opcode.CMSG_AUTH_ACK, Handle_NULL },
             { Opcode.SMSG_PLAYER_JOINED, WorldHandler.NewPlayerSpawned },
+            { Opcode.SMSG_PLAYER_LEFT, WorldHandler.PlayerDisconnected },
             { Opcode.MSG_PLAYER_POSITION, WorldHandler.PlayerPosition },
             { Opcode.MSG_PLAYER_ROTATION, WorldHandler.PlayerRotation }
         };

@@ -60,7 +60,14 @@ namespace Assets.Scripts.Networking.Client.Sockets
                 Debug.LogException(ex);
                 Disconnect();
             }
+        }
 
+        internal override void Disconnect()
+        {
+            if (_socket.Client.Connected)
+                _socket.Close();
+
+            _endPoint = null;
         }
 
         internal override void SendData(ByteBuffer buff)

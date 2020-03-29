@@ -41,5 +41,13 @@ namespace Assets.Scripts.Networking.Client.Handlers.WorldHandler
             GameObject go = GameObject.Find(clientId.ToString());
             go.transform.rotation = Quaternion.Euler(newRotation);
         }
+
+        internal static void PlayerDisconnected(ByteBuffer data)
+        {
+            int disconnectedPlayerId = data.ReadInt();
+
+            GameObject go = GameObject.Find(disconnectedPlayerId.ToString());
+            GameObject.Destroy(go);
+        }
     }
 }

@@ -124,6 +124,17 @@ namespace Assets.Scripts.Networking.Server
         {
             session.Kick();
             _currentSessions.Remove(session.GetId());
+
+            SendDisconnectToAll(session);
+        }
+
+        private void SendDisconnectToAll(Session session)
+        {
+            ByteBuffer buff = new ByteBuffer(Opcode.SMSG_PLAYER_LEFT);
+            {
+                buff.Write(session.GetId());
+                SendToAll(buff);
+            }
         }
 
         private void HandleSessionQueue()
