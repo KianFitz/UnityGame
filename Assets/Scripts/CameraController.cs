@@ -14,13 +14,19 @@ public class CameraController : MonoBehaviour {
 
     public Vector3 rotation { get; private set; }
 
+
+    private Vector3 _oldRotation;
+
     void Start() {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
         mouseSens = 100;
+
+        _oldRotation = new Vector3(0, 0, 0);
     }
 
     void Update() {
+
         cameraX += mouseSens * Input.GetAxis("Mouse X") * Time.deltaTime;
         cameraY -= mouseSens * Input.GetAxis("Mouse Y") * Time.deltaTime;
         cameraY = cameraY < -90 ? -90 : cameraY;
@@ -30,7 +36,10 @@ public class CameraController : MonoBehaviour {
 
         transform.eulerAngles = new Vector3(cameraY, cameraX, cameraZ);
 
-        SendPositionToServer();
+        if (rotation != _oldRotation)
+            SendPositionToServer();
+
+        _oldRotation = rotation;
     }
 
     private void SendPositionToServer()

@@ -18,7 +18,8 @@ namespace Assets.Scripts.Networking.Server
             { Opcode.SMSG_AUTH, Handle_NULL},
             { Opcode.CMSG_AUTH_ACK, PlayerHandler.HandleAuthAckOpcode },
             { Opcode.SMSG_PLAYER_JOINED, Handle_NULL},
-            { Opcode.MSG_PLAYER_POSITION, PlayerHandler.HandlePlayerMoved },
+            { Opcode.CMSG_PLAYER_MOVING, PlayerHandler.HandlePlayerMoved },
+            { Opcode.SMSG_PLAYER_MOVED, Handle_NULL },
             { Opcode.MSG_PLAYER_ROTATION, PlayerHandler.HandlePlayerRotated }
         };
 

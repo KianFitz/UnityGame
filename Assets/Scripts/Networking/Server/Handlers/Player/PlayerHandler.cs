@@ -25,14 +25,14 @@ namespace Assets.Scripts.Networking.Server
 
         internal static void SendAllOldPlayersToNewJoiner(Session session)
         {
-            foreach (Player plr in SessionManager.Instance().GetAllPlayers())
+            foreach (ServerPlayerController plr in SessionManager.Instance().GetAllPlayers())
             {
                 if (plr.Id == session.GetId())
                     continue;
 
                 ByteBuffer buff = new ByteBuffer(Opcode.SMSG_PLAYER_JOINED);
                 buff.Write(plr.Id);
-                buff.Write(plr.Position);
+                buff.Write(plr.transform.position);
 
                 session.SendDirectMessage(buff);
             }
@@ -48,9 +48,10 @@ namespace Assets.Scripts.Networking.Server
                 return;
             }
 
-            Vector3 location = buffer.ReadVector3();
+            ServerPlayerController plrStats = session.GetPlayer();
+            plrStats.Move(buffer);
 
-            session.UpdatePlayerLocation(location);
+            session.UpdatePlayerLocation(plrStats.transform.position);
             SessionManager.Instance().SendUDPToAll(buffer, session);
         }
 

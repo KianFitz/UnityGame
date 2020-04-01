@@ -16,7 +16,6 @@ namespace Assets.Scripts.Networking.Client
         private static Client _instance;
         public static Client Instance() => _instance;
 
-        public string Ip = "127.0.0.1";
         public int Port = 27930;
         public int ClientID;
 
@@ -61,7 +60,8 @@ namespace Assets.Scripts.Networking.Client
             { Opcode.CMSG_AUTH_ACK, Handle_NULL },
             { Opcode.SMSG_PLAYER_JOINED, WorldHandler.NewPlayerSpawned },
             { Opcode.SMSG_PLAYER_LEFT, WorldHandler.PlayerDisconnected },
-            { Opcode.MSG_PLAYER_POSITION, WorldHandler.PlayerPosition },
+            { Opcode.CMSG_PLAYER_MOVING, Handle_NULL },
+            { Opcode.SMSG_PLAYER_MOVED, WorldHandler.PlayerPosition },
             { Opcode.MSG_PLAYER_ROTATION, WorldHandler.PlayerRotation }
         };
         }

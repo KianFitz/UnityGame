@@ -13,7 +13,8 @@ namespace Assets.Scripts.Networking.Shared
         CMSG_AUTH_ACK = 0x002,
         SMSG_PLAYER_JOINED = 0x003,
         SMSG_PLAYER_LEFT = 0x004,
-        MSG_PLAYER_POSITION = 0x005,
-        MSG_PLAYER_ROTATION = 0x006,
+        CMSG_PLAYER_MOVING = 0x005,
+        SMSG_PLAYER_MOVED = 0x006,
+        MSG_PLAYER_ROTATION = 0x007,
     }
 }

@@ -17,6 +17,8 @@ namespace Assets.Scripts.Networking.Server
         private DateTime _lastServerTime, _currServerTime;
 
         [SerializeField] internal Vector3 _serverSpawnPosition;
+        [SerializeField] private GameObject _playerPrefab;
+        internal GameObject PlayerPrefab { get => _playerPrefab; }
 
         internal void SendToAll(ByteBuffer buff, Session exclude = null)
         {
@@ -74,7 +76,7 @@ namespace Assets.Scripts.Networking.Server
                 return null;        
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             _lastServerTime = _currServerTime;
             _currServerTime = DateTime.Now;
@@ -118,6 +120,8 @@ namespace Assets.Scripts.Networking.Server
             {
                 session.Value.Update(diff);
             }
+
+            Debug.Log($"Diff: {diff}");
         }
 
         internal void KickSession(Session session)
@@ -160,7 +164,7 @@ namespace Assets.Scripts.Networking.Server
             }
         }
 
-        internal IEnumerable<Player> GetAllPlayers()
+        internal IEnumerable<ServerPlayerController> GetAllPlayers()
         {
             foreach (Session session in _currentSessions.Values)
                 yield return session.GetPlayer();

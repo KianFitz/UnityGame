@@ -94,23 +94,20 @@ namespace Assets.Scripts.Networking.Server
 
         internal void InstantiatePlayer(Vector3 spawnpoint)
         {
-            _player = new Player()
-            {
-                Id = _id,
-                Name = "Player",
-                Position = spawnpoint,
-                Rotation = Quaternion.identity.eulerAngles
-            };
+            GameObject newGo = GameObject.Instantiate(SessionManager.Instance().PlayerPrefab, spawnpoint, Quaternion.identity);
+            _player = newGo.GetComponent<ServerPlayerController>();
+            _player.Id = _id;
+            _player.Name = "Player";
         }
 
         internal void UpdatePlayerLocation(Vector3 newLocation)
         {
-            _player.Position = newLocation;
+            _player.transform.position = newLocation;
         }
 
         internal void UpdatePlayerRotation(Vector3 newRotation)
         {
-            _player.Rotation = newRotation;
+            _player.transform.rotation = Quaternion.Euler(newRotation);
         }
 
         internal void SendUDPData(ByteBuffer buffer)
@@ -182,7 +179,7 @@ namespace Assets.Scripts.Networking.Server
         private const int bufferSize = 4096;
 
         private Queue<ByteBuffer> _packetQueue;
-        private Player _player;
+        private ServerPlayerController _player;
 
         private TCPImplementation _tcp;
         private UDPImplementation _udp;
@@ -222,7 +219,7 @@ namespace Assets.Scripts.Networking.Server
             }
         }
 
-        internal Player GetPlayer() => _player;
+        internal ServerPlayerController GetPlayer() => _player;
 
         private void HandlePacket(ByteBuffer packet)
         {

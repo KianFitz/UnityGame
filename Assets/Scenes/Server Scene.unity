@@ -258,6 +258,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _serverSpawnPosition: {x: 1.58, y: 51.08, z: 6.43}
+  _playerPrefab: {fileID: 2674157828009301673, guid: d61b81d6b643df54c98fc4d60933876b,
+    type: 3}
 --- !u!4 &1514990232
 Transform:
   m_ObjectHideFlags: 0
