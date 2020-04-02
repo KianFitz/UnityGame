@@ -45,6 +45,7 @@ namespace Assets.Scripts.Networking.Server
             bool isSprinting = buffer.ReadBool();
             bool isJumping = buffer.ReadBool();
             bool isCrouching = buffer.ReadBool();
+            transform.rotation = buffer.ReadQuaternion();
 
             if (!_isMidJump && isJumping)
             {
@@ -57,7 +58,7 @@ namespace Assets.Scripts.Networking.Server
                 gravityVector += ApplyGravity();
             }
 
-            moveSpeed = isSprinting ? Mathf.Lerp(runSpeed, walkSpeed, Time.deltaTime * buildUpSpeed) : Mathf.Lerp(walkSpeed, runSpeed, Time.deltaTime * buildUpSpeed);
+            moveSpeed = isSprinting ? Mathf.Lerp(runSpeed, walkSpeed, Time.fixedDeltaTime * buildUpSpeed) : Mathf.Lerp(walkSpeed, runSpeed, Time.fixedDeltaTime * buildUpSpeed);
 
             if (isCrouching)
                 moveSpeed *= crouchSpeed;
@@ -65,26 +66,24 @@ namespace Assets.Scripts.Networking.Server
             moveDirection *= moveSpeed;
             moveDirection = transform.TransformDirection(moveDirection);
 
-            _charController.Move((gravityVector + moveDirection) * Time.deltaTime);
+            _charController.Move((gravityVector + moveDirection) * Time.fixedDeltaTime);
 
             SendPositionToPlayers();
         }
 
         private void SendPositionToPlayers()
         {
-            using (ByteBuffer buffer = new ByteBuffer(Shared.Opcode.SMSG_PLAYER_MOVED))
-            {
-                buffer.Write(_id);
-                buffer.Write(transform.position);
+            ByteBuffer buffer = new ByteBuffer(Shared.Opcode.SMSG_PLAYER_MOVED);
+            buffer.Write(_id);
+            buffer.Write(transform.position);
 
-                SessionManager.Instance().SendUDPToAll(buffer);
-            }
+            SessionManager.Instance().SendUDPToAll(buffer);
         }
 
         private Vector3 ApplyGravity()
         {
             if (!_charController.isGrounded)
-                return Vector3.down * gravity * Time.deltaTime;
+                return Vector3.down * gravity * Time.fixedDeltaTime;
             return Vector3.zero;
         }
 
@@ -96,8 +95,8 @@ namespace Assets.Scripts.Networking.Server
             do
             {
                 float acceleration = jumpAcceleration.Evaluate(timeInAir);
-                _charController.Move(Vector3.up * acceleration * jumpSpeed * Time.deltaTime);
-                timeInAir += Time.deltaTime;
+                _charController.Move(Vector3.up * acceleration * jumpSpeed * Time.fixedDeltaTime);
+                timeInAir += Time.fixedDeltaTime;
                 yield return null;
             } while (!_charController.isGrounded && _charController.collisionFlags != CollisionFlags.Above);
 

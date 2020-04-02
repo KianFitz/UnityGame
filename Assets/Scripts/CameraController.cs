@@ -36,20 +36,19 @@ public class CameraController : MonoBehaviour {
 
         transform.eulerAngles = new Vector3(cameraY, cameraX, cameraZ);
 
-        if (rotation != _oldRotation)
-            SendPositionToServer();
+        //if (rotation != _oldRotation)
+        //    SendPositionToServer();
 
         _oldRotation = rotation;
     }
 
     private void SendPositionToServer()
     {
-        using (ByteBuffer buffer = new ByteBuffer(Assets.Scripts.Networking.Shared.Opcode.MSG_PLAYER_ROTATION))
-        {
-            buffer.Write(Client.Instance().ClientID);
-            buffer.Write(this.rotation);
+        ByteBuffer buffer = new ByteBuffer(Assets.Scripts.Networking.Shared.Opcode.MSG_PLAYER_ROTATION);
+        
+        buffer.Write(Client.Instance().ClientID);
+        buffer.Write(this.rotation);
 
-            Client.Instance().SendUDPMessageToServer(buffer);
-        }
+        Client.Instance().SendUDPMessageToServer(buffer);
     }
 }

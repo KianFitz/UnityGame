@@ -1,6 +1,8 @@
 ﻿using Assets.Scripts.Networking.Client;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityGame.Scripts.Network.Shared;
 
@@ -31,14 +33,18 @@ public class PlayerController : MonoBehaviour {
     bool isJumping;
     bool isCrouching;
 
+    Timer _updateTimer;
+
     void Start() {
         isJumping = false;
         camera = transform.GetChild(0).gameObject;
         cameraController = camera.GetComponent<CameraController>();
+
+        //_updateTimer = new Timer(new TimerCallback(SendPositionToServer), null, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(50));
     }
 
     void Update() {
-        if (!isWallRunning) RestRotation(transform.eulerAngles);
+        RestRotation(transform.eulerAngles);
 
         moveDirection = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         Vector3.ClampMagnitude(moveDirection, 1);
@@ -48,22 +54,24 @@ public class PlayerController : MonoBehaviour {
         isCrouching = Input.GetKey(KeyCode.LeftControl);
 
         Crouch();
+    }
 
+    private void FixedUpdate()
+    {
         SendPositionToServer();
     }
 
     private void SendPositionToServer()
     {
-        using (ByteBuffer buffer = new ByteBuffer(Assets.Scripts.Networking.Shared.Opcode.CMSG_PLAYER_MOVING))
-        {
-            buffer.Write(Client.Instance().ClientID);
-            buffer.Write(moveDirection); // direction of movement;
-            buffer.Write(isSprinting);
-            buffer.Write(isJumping);
-            buffer.Write(isCrouching);
+        ByteBuffer buffer = new ByteBuffer(Assets.Scripts.Networking.Shared.Opcode.CMSG_PLAYER_MOVING);
+        buffer.Write(Client.Instance().ClientID);
+        buffer.Write(moveDirection); // direction of movement;
+        buffer.Write(isSprinting);
+        buffer.Write(isJumping);
+        buffer.Write(isCrouching);
+        buffer.Write(transform.rotation);
 
-            Client.Instance().SendUDPMessageToServer(buffer);
-        }
+        Client.Instance().SendUDPMessageToServer(buffer);
     }
 
     private void Crouch() {

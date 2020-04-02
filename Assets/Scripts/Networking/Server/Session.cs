@@ -1,9 +1,11 @@
-﻿using Assets.Scripts.Networking.Shared;
+﻿using Assets.Scripts.Networking.Client;
+using Assets.Scripts.Networking.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,7 +15,7 @@ namespace Assets.Scripts.Networking.Server
 {
     public partial class Session
     {
-        struct TCPImplementation
+        class TCPImplementation
         {
             private TcpClient _client;
             private NetworkStream _stream;
@@ -75,6 +77,7 @@ namespace Assets.Scripts.Networking.Server
                     Array.Copy(_buffer, incomingData, dataLength);
 
                     ByteBuffer buff = new ByteBuffer(incomingData);
+
                     _ownerSession.AddPacketToQueue(buff);
 
                     _stream.BeginRead(_buffer, 0, bufferSize, OnReceivedData, null);
@@ -90,6 +93,11 @@ namespace Assets.Scripts.Networking.Server
                 _client.Close();
                 _stream.Close();
             }
+        }
+
+        internal void AddPacketToQueue(ByteBuffer buffer)
+        {
+            _receiveQueue.Enqueue(buffer);
         }
 
         internal void InstantiatePlayer(Vector3 spawnpoint)
@@ -113,6 +121,7 @@ namespace Assets.Scripts.Networking.Server
         internal void SendUDPData(ByteBuffer buffer)
         {
             _udp.SendData(buffer);
+            //_udpSendQueue.Enqueue(buffer);
         }
 
         class UDPImplementation
@@ -177,12 +186,18 @@ namespace Assets.Scripts.Networking.Server
 
         private int _id;
         private const int bufferSize = 4096;
+        private const int MAX_PACKETS_IN_SINGLE_UPDATE = 50;
 
-        private Queue<ByteBuffer> _packetQueue;
+        //private Queue<ByteBuffer> _sendQueue;
+        //private Queue<ByteBuffer> _udpSendQueue;
+        private Queue<ByteBuffer> _receiveQueue;
+
         private ServerPlayerController _player;
 
         private TCPImplementation _tcp;
         private UDPImplementation _udp;
+
+        private Assets.Scripts.Logs.Logger _logger;
 
         public Session(int id, TcpClient client)
         {
@@ -193,41 +208,52 @@ namespace Assets.Scripts.Networking.Server
 
             UdpManager.Instance();
 
-            _packetQueue = new Queue<ByteBuffer>();
+            //_sendQueue = new Queue<ByteBuffer>();
+           // _udpSendQueue = new Queue<ByteBuffer>();
+            _receiveQueue = new Queue<ByteBuffer>();
         }
 
         public void SendDirectMessage(ByteBuffer buff)
         {
+            //_sendQueue.Enqueue(buff);
             _tcp.SendDirectMessage(buff);
-        }
-
-        internal void AddPacketToQueue(ByteBuffer buff)
-        {
-            _packetQueue.Enqueue(buff);
         }
 
         internal void Update(double diff)
         {
-            lock (_packetQueue)
-            {
-                while (_packetQueue.Count > 0)
-                {
-                    ByteBuffer buff = _packetQueue.Dequeue();
+            int processedPackets = 0;
 
-                    HandlePacket(buff);
-                }
+            while (_receiveQueue.Count > 0 && processedPackets < MAX_PACKETS_IN_SINGLE_UPDATE)
+            {
+                ByteBuffer buff = _receiveQueue.Dequeue();
+                HandlePacket(buff);
+
+                processedPackets++;
             }
+        }
+
+        internal void UpdateSendQueue(double diff)
+        {
+            //while (_sendQueue.Count > 0)
+            //{
+            //    ByteBuffer buff = _sendQueue.Dequeue();
+            //    _tcp.SendDirectMessage(buff);
+            //}
+            
+            //while (_udpSendQueue.Count > 0)
+            //{
+            //    ByteBuffer buff = _udpSendQueue.Dequeue();
+            //    _udp.SendData(buff);
+            //}
         }
 
         internal ServerPlayerController GetPlayer() => _player;
 
-        private void HandlePacket(ByteBuffer packet)
+        internal void HandlePacket(ByteBuffer packet)
         {
             try
             {
                 int opcode = packet.ReadInt();
-
-                Debug.Log("Received: " + (Opcode)opcode);
 
                 if (ServerHandler.OpcodeTable.TryGetValue((Opcode)opcode, out ServerHandler.OpcodeHandler handler))
                 {

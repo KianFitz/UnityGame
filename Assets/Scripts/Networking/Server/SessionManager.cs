@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityGame.Scripts.Network.Shared;
@@ -15,6 +16,10 @@ namespace Assets.Scripts.Networking.Server
         private Dictionary<int, Session> _currentSessions;
         private Queue<TcpClient> _connectQueue;
         private DateTime _lastServerTime, _currServerTime;
+        private Thread _sendNetworkThread;
+
+        private DateTime _lastSendThreadTime, _currSendThreadTime;
+
 
         [SerializeField] internal Vector3 _serverSpawnPosition;
         [SerializeField] private GameObject _playerPrefab;
@@ -57,10 +62,13 @@ namespace Assets.Scripts.Networking.Server
             try
             {
                 QualitySettings.vSyncCount = 0;
-                Application.targetFrameRate = 60;
+                Application.targetFrameRate = 300;
 
                 ServerManager.Start();
                 Debug.Log("Started Server..");
+                
+                _sendNetworkThread = new Thread(new ThreadStart(StartSendThread));
+                _sendNetworkThread.Start();
             }
             catch
             {
@@ -76,6 +84,20 @@ namespace Assets.Scripts.Networking.Server
                 return null;        
         }
 
+        private void StartSendThread()
+        {
+            do
+            {
+                HandleSessionQueue();
+
+                //foreach (Session s in _currentSessions.Values)
+                //{
+                //    s.UpdateSendQueue(0);
+                //}
+            }
+            while (Thread.CurrentThread.ThreadState == ThreadState.Running);
+        }
+
         private void Update()
         {
             _lastServerTime = _currServerTime;
@@ -83,6 +105,8 @@ namespace Assets.Scripts.Networking.Server
 
             TimeSpan diff = _currServerTime.Subtract(_lastServerTime);
             OnUpdate(diff.TotalMilliseconds);
+
+            Debug.Log(1.0 / Time.deltaTime + " FPS");
         }
 
         private SessionManager()
@@ -114,14 +138,10 @@ namespace Assets.Scripts.Networking.Server
 
         internal void OnUpdate(double diff)
         {
-            HandleSessionQueue();
-
             foreach (var session in _currentSessions)
             {
                 session.Value.Update(diff);
             }
-
-            Debug.Log($"Diff: {diff}");
         }
 
         internal void KickSession(Session session)

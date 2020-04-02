@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Networking.Shared;
+﻿using Assets.Scripts.Networking.Client;
+using Assets.Scripts.Networking.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace Assets.Scripts.Networking.Server
         static UdpClient _udpServer;
 
         static UdpManager _instance;
+        static Assets.Scripts.Logs.Logger _logger;
+
         public static UdpManager Instance()
         {
             if (_instance is null)
@@ -79,12 +82,19 @@ namespace Assets.Scripts.Networking.Server
 
         internal void SendUDPData(IPEndPoint endpoint, ByteBuffer packet)
         {
-            if (endpoint is null)
-                return;
+            try
+            {
+                if (endpoint is null)
+                    return;
 
-            byte[] sendData = packet.AsByteArray();
+                byte[] sendData = packet.AsByteArray();
 
-            _udpServer.BeginSend(sendData, sendData.Length, endpoint, null, null);
+                _udpServer.BeginSend(sendData, sendData.Length, endpoint, null, null);
+            }
+            catch (NullReferenceException ex)
+            {
+                _logger.LogError("Error in UdpManager.SendUDPData", ex);   
+            }
         }
     }
 }
