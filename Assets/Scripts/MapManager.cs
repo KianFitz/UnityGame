@@ -81,7 +81,7 @@ public class MapManager : MonoBehaviour {
 
     }
 
-    private Chunk GetChunkWorldSpace(int x, int y, int z) {
+    public Chunk GetChunkWorldSpace(int x, int y, int z) {
         int xPos = Mathf.FloorToInt(x / Chunk.chunkSize);
         int yPos = Mathf.FloorToInt(y / Chunk.chunkSize);
         int zPos = Mathf.FloorToInt(z / Chunk.chunkSize);
@@ -90,7 +90,99 @@ public class MapManager : MonoBehaviour {
         else return null;
     }
 
-    private void ClearSphere(int x, int y, int z, int diameter) {
+    public static Vector3 WorldToChunkSpace(Vector3 point) {
+        int x = Mathf.FloorToInt(point.x / Chunk.chunkSize) * Chunk.chunkSize;
+        int y = Mathf.FloorToInt(point.y / Chunk.chunkSize) * Chunk.chunkSize;
+        int z = Mathf.FloorToInt(point.z / Chunk.chunkSize) * Chunk.chunkSize;
+        return new Vector3(x, y, z);
+    }
+
+    private List<Chunk> GetSurroundingChunks(Vector3Int position, int maxRange) {
+        List<Chunk> chunks = new List<Chunk>();
+        Vector3 localPosition = Chunk.WorldToLocalSpace(position);
+        if (localPosition.x + maxRange > Chunk.chunkSize) {
+            if (localPosition.y + maxRange > Chunk.chunkSize) {
+                if (localPosition.z + maxRange > Chunk.chunkSize) {
+                    chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y + maxRange, position.z + maxRange));
+                }
+                else if (localPosition.z - maxRange < 0) {
+                    chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y + maxRange, position.z - maxRange));
+                }
+                chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y + maxRange, position.z));
+            }
+            else if (localPosition.y - maxRange < 0) {
+                if (localPosition.z + maxRange > Chunk.chunkSize) {
+                    chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y - maxRange, position.z + maxRange));
+                }
+                else if (localPosition.z - maxRange < 0) {
+                    chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y - maxRange, position.z - maxRange));
+                }
+                chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y - maxRange, position.z));
+            }
+            if (localPosition.z + maxRange > Chunk.chunkSize) {
+                chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y, position.z + maxRange));
+            }
+            else if (localPosition.z - maxRange < 0) {
+                chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y, position.z - maxRange));
+            }
+            chunks.Add(GetChunkWorldSpace(position.x + maxRange, position.y, position.z));
+        }
+        else if (localPosition.x - maxRange < 0) {
+            if (localPosition.y + maxRange > Chunk.chunkSize) {
+                if (localPosition.z + maxRange > Chunk.chunkSize) {
+                    chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y + maxRange, position.z + maxRange));
+                }
+                else if (localPosition.z - maxRange < 0) {
+                    chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y + maxRange, position.z - maxRange));
+                }
+                chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y + maxRange, position.z));
+            }
+            else if (localPosition.y - maxRange < 0) {
+                if (localPosition.z + maxRange > Chunk.chunkSize) {
+                    chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y - maxRange, position.z + maxRange));
+                }
+                else if (localPosition.z - maxRange < 0) {
+                    chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y - maxRange, position.z - maxRange));
+                }
+                chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y - maxRange, position.z));
+            }
+            if (localPosition.z + maxRange > Chunk.chunkSize) {
+                chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y, position.z + maxRange));
+            }
+            else if (localPosition.z - maxRange < 0) {
+                chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y, position.z - maxRange));
+            }
+            chunks.Add(GetChunkWorldSpace(position.x - maxRange, position.y, position.z));
+        }
+        if (localPosition.y + maxRange > Chunk.chunkSize) {
+            if (localPosition.z + maxRange > Chunk.chunkSize) {
+                chunks.Add(GetChunkWorldSpace(position.x, position.y + maxRange, position.z + maxRange));
+            }
+            else if (localPosition.z - maxRange < 0) {
+                chunks.Add(GetChunkWorldSpace(position.x, position.y + maxRange, position.z - maxRange));
+            }
+            chunks.Add(GetChunkWorldSpace(position.x, position.y + maxRange, position.z));
+        }
+        else if (localPosition.y - maxRange < 0) {
+            if (localPosition.z + maxRange > Chunk.chunkSize) {
+                chunks.Add(GetChunkWorldSpace(position.x, position.y - maxRange, position.z + maxRange));
+            }
+            else if (localPosition.z - maxRange < 0) {
+                chunks.Add(GetChunkWorldSpace(position.x, position.y - maxRange, position.z - maxRange));
+            }
+            chunks.Add(GetChunkWorldSpace(position.x, position.y - maxRange, position.z));
+        }
+        if (localPosition.z + maxRange > Chunk.chunkSize) {
+            chunks.Add(GetChunkWorldSpace(position.x, position.y, position.z + maxRange));
+        }
+        else if (localPosition.z - maxRange < 0) {
+            chunks.Add(GetChunkWorldSpace(position.x, position.y, position.z - maxRange));
+        }
+        return chunks;
+    }
+
+    public List<Chunk> ClearSphere(int x, int y, int z, int diameter) {
+        List<Chunk> updateChunks = new List<Chunk>();
         int radius = diameter / 2;
         int radiusSquared = radius * radius;
 
@@ -101,11 +193,21 @@ public class MapManager : MonoBehaviour {
                 for (int k = -radius; k <= radius; k++) {
                     if (CircleEquation(i + x, j + y, k + z) < radiusSquared) {
                         Chunk c = GetChunkWorldSpace(i + x, j + y, k + z);
-                        if (c != null) c.SetBlock(Mathf.Abs(i + x) % Chunk.chunkSize, Mathf.Abs(j + y) % Chunk.chunkSize, Mathf.Abs(k + z) % Chunk.chunkSize, false);
+                        if (c != null && 
+                            i + x > 1 && i + x < (mapWidth * Chunk.chunkSize) - 1 &&
+                            j + y > 1 && j + y < (mapHeight * Chunk.chunkSize) - 1 &&
+                            k + z > 1 && k + z < (mapWidth * Chunk.chunkSize) - 1) {
+                            c.SetBlock(Mathf.Abs(i + x) % Chunk.chunkSize, Mathf.Abs(j + y) % Chunk.chunkSize, Mathf.Abs(k + z) % Chunk.chunkSize, false);
+                            if (!updateChunks.Exists(chunk => c.transform.position == chunk.transform.position)) {
+                                updateChunks.Add(c);
+                            }
+                        }
                     }
                 }
             }
         }
+        updateChunks.AddRange(GetSurroundingChunks(new Vector3Int(x, y, z), radius + 1));
+        return updateChunks;
     }
 
     private void ClearCube(int x, int y, int z, int length) {

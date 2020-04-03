@@ -760,10 +760,21 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  slideAcceleration:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   playerWidth: 1
   wallRunDistance: 0.1
   wallRunGravity: 0.2
   tiltAngle: 10
   tiltSpeed: 15
+  crouchHeight: 0.5
+  crouchTransitionSpeed: 15
+  crouchSpeed: 0.5
+  idleHeight: 0.9
   moveDirection: {x: 0, y: 0, z: 0}
   gravityVector: {x: 0, y: 0, z: 0}
+  isSliding: 0

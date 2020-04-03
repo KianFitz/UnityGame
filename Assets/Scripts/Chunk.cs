@@ -96,6 +96,10 @@ public class Chunk : MonoBehaviour {
         }
     }
 
+    public static Vector3 WorldToLocalSpace(Vector3 point) {
+        return new Vector3(point.x % chunkSize, point.y % chunkSize, point.z % chunkSize);
+    }
+
     private void CubeTop(int x, int y, int z, Vector2 block) {
         newVertices.Add(new Vector3(x, y, z + 1));
         newVertices.Add(new Vector3(x + 1, y, z + 1));

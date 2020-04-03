@@ -7,6 +7,7 @@ public class PlayerShoot : MonoBehaviour {
     private Vector3 cameraRotation;
     private Transform cameraTransform;
 
+    [SerializeField] MapManager mapManager;
     [SerializeField] private bool allowShooting;
     [SerializeField] private int fireRate;
 
@@ -30,6 +31,15 @@ public class PlayerShoot : MonoBehaviour {
             if (hit.transform.CompareTag("Player")) {
                 PlayerStats player = hit.transform.gameObject.GetComponent<PlayerStats>();
                 player.Damage(3); // temp
+            }
+            else if (hit.transform.CompareTag("Terrain")) {
+                List<Chunk> chunks = mapManager.ClearSphere((int)hit.point.x, (int)hit.point.y, (int)hit.point.z, 8);
+                foreach (Chunk c in chunks) {
+                    if (c != null) {
+                        c.GenerateMesh();
+                        c.UpdateMesh();
+                    }
+                }
             }
         }
         yield return new WaitForSeconds(GetFireRateTime(fireRate));

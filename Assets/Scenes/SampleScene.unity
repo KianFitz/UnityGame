@@ -20,7 +20,7 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.7924528, g: 0.7924528, b: 0.7924528, a: 1}
+  m_AmbientSkyColor: {r: 0.8301887, g: 0.8301887, b: 0.8301887, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
@@ -200,20 +200,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f57e9ff4289a6b458d97975f875cfc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapManager: {fileID: 2129297071}
   allowShooting: 1
   fireRate: 600
---- !u!114 &991984535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 991984527}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4202c50bffd22a74cbbc5fe64926aff4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1665499348
 GameObject:
   m_ObjectHideFlags: 0
@@ -279,7 +268,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 9007a25a33f418644ae867cb5aef60c4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
