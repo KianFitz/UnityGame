@@ -17,6 +17,12 @@ namespace Assets.Scripts.Net.Client
             Client.Instance().tcp.SendData(_packet);
         }
 
+        private static void SendUDPData(Packet _packet)
+        {
+            _packet.WriteLength();
+            Client.Instance().udp.SendData(_packet);
+        }
+
         internal static void AskForSpawn(int myId)
         {
             using (Packet _packet = new Packet((int)Opcode.CMSG_WELCOME_ACK))
@@ -27,14 +33,19 @@ namespace Assets.Scripts.Net.Client
             }
         }
 
-        /// <summary>Sends a packet to the server via UDP.</summary>
-        /// <param name="_packet">The packet to send to the sever.</param>
-        //private static void SendUDPData(Packet _packet)
-        //{
-        //    _packet.WriteLength();
-        //    Client.Instance().udp.SendData(_packet);
-        //}
+        internal static void PlayerMovement(bool[] inputs)
+        {
+            using (Packet _packet = new Packet((int)Opcode.MSG_PLAYER_MOVEMENT))
+            {
+                _packet.Write(inputs.Length);
+                foreach (bool _input in inputs)
+                {
+                    _packet.Write(_input);
+                }
+                _packet.Write(GameManager.players[Client.Instance().myId].transform.rotation);
 
-
+                SendUDPData(_packet);
+            }
+        }
     }
 }

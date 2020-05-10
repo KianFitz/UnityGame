@@ -105,6 +105,28 @@ namespace Assets.Scripts.Net.Server
                 SendTCPData(_toClient, _packet);
             }
         }
+
+        public static void PlayerPosition(Player plr)
+        {
+            using (Packet _packet = new Packet((int)Opcodes.Opcode.MSG_PLAYER_MOVEMENT))
+            {
+                _packet.Write(plr.id);
+                _packet.Write(plr.transform.position);
+
+                SendUDPDataToAll(_packet);
+            }
+        }
+
+        public static void PlayerRotation(Player plr)
+        {
+            using (Packet _packet = new Packet((int)Opcodes.Opcode.MSG_PLAYER_MOVEMENT))
+            {
+                _packet.Write(plr.id);
+                _packet.Write(plr.transform.rotation);
+
+                SendUDPDataToAll(plr.id, _packet);
+            }
+        }
         #endregion
     }
 }

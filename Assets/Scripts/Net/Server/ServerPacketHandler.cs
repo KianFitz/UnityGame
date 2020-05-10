@@ -24,6 +24,11 @@ namespace Assets.Scripts.Net.Server
             Server.clients[_fromClient].SendIntoGame();
         }
 
+        internal static void HandlePlayerMovement(int _fromClient, Packet _packet)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
     }

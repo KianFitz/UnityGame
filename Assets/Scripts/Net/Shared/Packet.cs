@@ -145,6 +145,26 @@ public class Packet : IDisposable
         Write(_value.Length); // Add the length of the string to the packet
         buffer.AddRange(Encoding.ASCII.GetBytes(_value)); // Add the string itself
     }
+
+    internal ushort ReadUint16(bool _moveReadPos = true)
+    {
+        if (buffer.Count > readPos)
+        {
+            // If there are unread bytes
+            ushort _value = BitConverter.ToUInt16(readableBuffer, readPos); // Convert the bytes to a short
+            if (_moveReadPos)
+            {
+                // If _moveReadPos is true and there are unread bytes
+                readPos += 2; // Increase readPos by 2
+            }
+            return _value; // Return the short
+        }
+        else
+        {
+            throw new Exception("Could not read value of type 'short'!");
+        }
+    }
+
     /// <summary>Adds a Vector3 to the packet.</summary>
     /// <param name="_value">The Vector3 to add.</param>
     public void Write(Vector3 _value)
