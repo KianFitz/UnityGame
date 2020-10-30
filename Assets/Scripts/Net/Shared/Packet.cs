@@ -8,7 +8,7 @@ public class Packet : IDisposable
 {
     private List<byte> buffer;
     private byte[] readableBuffer;
-    private int readPos;
+    private ulong readPos;
 
     /// <summary>Creates a new empty packet (without an ID).</summary>
     public Packet()
@@ -25,6 +25,11 @@ public class Packet : IDisposable
         readPos = 0; // Set readPos to 0
 
         Write(_id); // Write packet id to the buffer
+    }
+
+    internal void SetReadPos(int v)
+    {
+        readPos = 0;
     }
 
     /// <summary>Creates a packet from which data can be read. Used for receiving.</summary>
@@ -54,7 +59,7 @@ public class Packet : IDisposable
 
     /// <summary>Inserts the given int at the start of the buffer.</summary>
     /// <param name="_value">The int to insert.</param>
-    public void InsertInt(int _value)
+    public void InsertUint(uint _value)
     {
         buffer.InsertRange(0, BitConverter.GetBytes(_value)); // Insert the int at the start of the buffer
     }
@@ -73,9 +78,9 @@ public class Packet : IDisposable
     }
 
     /// <summary>Gets the length of the unread data contained in the packet.</summary>
-    public int UnreadLength()
+    public ulong UnreadLength()
     {
-        return Length() - readPos; // Return the remaining length (unread)
+        return (ulong)Length() - readPos; // Return the remaining length (unread)
     }
 
     /// <summary>Resets the packet instance to allow it to be reused.</summary>
@@ -146,25 +151,6 @@ public class Packet : IDisposable
         buffer.AddRange(Encoding.ASCII.GetBytes(_value)); // Add the string itself
     }
 
-    internal ushort ReadUint16(bool _moveReadPos = true)
-    {
-        if (buffer.Count > readPos)
-        {
-            // If there are unread bytes
-            ushort _value = BitConverter.ToUInt16(readableBuffer, readPos); // Convert the bytes to a short
-            if (_moveReadPos)
-            {
-                // If _moveReadPos is true and there are unread bytes
-                readPos += 2; // Increase readPos by 2
-            }
-            return _value; // Return the short
-        }
-        else
-        {
-            throw new Exception("Could not read value of type 'short'!");
-        }
-    }
-
     /// <summary>Adds a Vector3 to the packet.</summary>
     /// <param name="_value">The Vector3 to add.</param>
     public void Write(Vector3 _value)
@@ -189,7 +175,7 @@ public class Packet : IDisposable
     /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
     public byte ReadByte(bool _moveReadPos = true)
     {
-        if (buffer.Count > readPos)
+        if ((ulong)buffer.Count > readPos)
         {
             // If there are unread bytes
             byte _value = readableBuffer[readPos]; // Get the byte at readPos' position
@@ -211,14 +197,14 @@ public class Packet : IDisposable
     /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
     public byte[] ReadBytes(int _length, bool _moveReadPos = true)
     {
-        if (buffer.Count > readPos)
+        if ((ulong)buffer.Count > readPos)
         {
             // If there are unread bytes
-            byte[] _value = buffer.GetRange(readPos, _length).ToArray(); // Get the bytes at readPos' position with a range of _length
+            byte[] _value = buffer.GetRange((int)readPos, _length).ToArray(); // Get the bytes at readPos' position with a range of _length
             if (_moveReadPos)
             {
                 // If _moveReadPos is true
-                readPos += _length; // Increase readPos by _length
+                readPos += (ulong)_length; // Increase readPos by _length
             }
             return _value; // Return the bytes
         }
@@ -228,14 +214,65 @@ public class Packet : IDisposable
         }
     }
 
+    internal ulong ReadUlong(bool _moveReadPos = true)
+    {
+        if ((ulong)buffer.Count > readPos)
+        {
+            ulong _value = BitConverter.ToUInt64(readableBuffer, (int)readPos);
+            if (_moveReadPos)
+            {
+                readPos += 4;
+            }
+            return _value;
+        }
+        else
+        {
+            throw new Exception("Could not read value of type 'ulong'!");
+        }
+    }
+
+    internal uint ReadUint(bool _moveReadPos = true)
+    {
+        if ((ulong)buffer.Count > readPos)
+        {
+            uint _value = BitConverter.ToUInt32(readableBuffer, (int)readPos);
+            if (_moveReadPos)
+            {
+                readPos += 4;
+            }
+            return _value;
+        }
+        else
+        {
+            throw new Exception("Could not read value of type 'uint'!");
+        }
+    }
+
+    internal ushort ReadUshort(bool _moveReadPos = true)
+    {
+        if ((ulong)buffer.Count > readPos)
+        {
+            ushort _value = BitConverter.ToUInt16(readableBuffer, (int)readPos);
+            if (_moveReadPos)
+            {
+                readPos += 4;
+            }
+            return _value;
+        }
+        else
+        {
+            throw new Exception("Could not read value of type 'ushort'!");
+        }
+    }
+
     /// <summary>Reads a short from the packet.</summary>
     /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
     public short ReadShort(bool _moveReadPos = true)
     {
-        if (buffer.Count > readPos)
+        if ((ulong)buffer.Count > readPos)
         {
             // If there are unread bytes
-            short _value = BitConverter.ToInt16(readableBuffer, readPos); // Convert the bytes to a short
+            short _value = BitConverter.ToInt16(readableBuffer, (int)readPos); // Convert the bytes to a short
             if (_moveReadPos)
             {
                 // If _moveReadPos is true and there are unread bytes
@@ -253,10 +290,10 @@ public class Packet : IDisposable
     /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
     public int ReadInt(bool _moveReadPos = true)
     {
-        if (buffer.Count > readPos)
+        if ((ulong)buffer.Count > readPos)
         {
             // If there are unread bytes
-            int _value = BitConverter.ToInt32(readableBuffer, readPos); // Convert the bytes to an int
+            int _value = BitConverter.ToInt32(readableBuffer, (int)readPos); // Convert the bytes to an int
             if (_moveReadPos)
             {
                 // If _moveReadPos is true
@@ -274,10 +311,10 @@ public class Packet : IDisposable
     /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
     public long ReadLong(bool _moveReadPos = true)
     {
-        if (buffer.Count > readPos)
+        if ((ulong)buffer.Count > readPos)
         {
             // If there are unread bytes
-            long _value = BitConverter.ToInt64(readableBuffer, readPos); // Convert the bytes to a long
+            long _value = BitConverter.ToInt64(readableBuffer, (int)readPos); // Convert the bytes to a long
             if (_moveReadPos)
             {
                 // If _moveReadPos is true
@@ -295,10 +332,10 @@ public class Packet : IDisposable
     /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
     public float ReadFloat(bool _moveReadPos = true)
     {
-        if (buffer.Count > readPos)
+        if ((ulong)buffer.Count > readPos)
         {
             // If there are unread bytes
-            float _value = BitConverter.ToSingle(readableBuffer, readPos); // Convert the bytes to a float
+            float _value = BitConverter.ToSingle(readableBuffer, (int)readPos); // Convert the bytes to a float
             if (_moveReadPos)
             {
                 // If _moveReadPos is true
@@ -316,10 +353,10 @@ public class Packet : IDisposable
     /// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
     public bool ReadBool(bool _moveReadPos = true)
     {
-        if (buffer.Count > readPos)
+        if ((ulong)buffer.Count > readPos)
         {
             // If there are unread bytes
-            bool _value = BitConverter.ToBoolean(readableBuffer, readPos); // Convert the bytes to a bool
+            bool _value = BitConverter.ToBoolean(readableBuffer, (int)readPos); // Convert the bytes to a bool
             if (_moveReadPos)
             {
                 // If _moveReadPos is true
@@ -340,11 +377,11 @@ public class Packet : IDisposable
         try
         {
             int _length = ReadInt(); // Get the length of the string
-            string _value = Encoding.ASCII.GetString(readableBuffer, readPos, _length); // Convert the bytes to a string
+            string _value = Encoding.ASCII.GetString(readableBuffer, (int)readPos, _length); // Convert the bytes to a string
             if (_moveReadPos && _value.Length > 0)
             {
                 // If _moveReadPos is true string is not empty
-                readPos += _length; // Increase readPos by the length of the string
+                readPos += (ulong)_length; // Increase readPos by the length of the string
             }
             return _value; // Return the string
         }

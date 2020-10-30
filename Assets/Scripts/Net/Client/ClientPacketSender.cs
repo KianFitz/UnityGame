@@ -23,7 +23,7 @@ namespace Assets.Scripts.Net.Client
             Client.Instance().udp.SendData(_packet);
         }
 
-        internal static void AskForSpawn(int myId)
+        internal static void AskForSpawn(uint myId)
         {
             using (Packet _packet = new Packet((int)Opcode.CMSG_WELCOME_ACK))
             {

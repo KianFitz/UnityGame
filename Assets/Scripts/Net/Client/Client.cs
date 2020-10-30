@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Net.Client;
 using Assets.Scripts.Net.Shared;
+using Assets.Scripts.Networking;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,17 +23,26 @@ namespace Assets.Scripts.Net.Client
 
         public string ip = "127.0.0.1";
         public int port = 27930;
-        public int myId = 0;
+        public uint myId = 0;
         public TCP tcp;
         public UDP udp;
 
+        PacketInspector _inspector;
+
         public class TCP
         {
+            PacketInspector _inspector;
+
             public TcpClient socket;
 
             private NetworkStream stream;
             private Packet receivedData;
             private byte[] receiveBuffer;
+
+            public TCP(PacketInspector insp)
+            {
+                _inspector = insp;
+            }
 
             /// <summary>Attempts to connect to the server via TCP.</summary>
             public void Connect()
@@ -99,8 +109,9 @@ namespace Assets.Scripts.Net.Client
                     receivedData.Reset(HandleData(_data)); // Reset receivedData if all data was handled
                     stream.BeginRead(receiveBuffer, 0, dataBufferSize, ReceiveCallback, null);
                 }
-                catch
+                catch(Exception ex)
                 {
+                    Debug.Log(ex);
                     Disconnect();
                 }
             }
@@ -109,14 +120,14 @@ namespace Assets.Scripts.Net.Client
             /// <param name="_data">The recieved data.</param>
             private bool HandleData(byte[] _data)
             {
-                int _packetLength = 0;
+                ulong _packetLength = 0;
 
                 receivedData.SetBytes(_data);
 
                 if (receivedData.UnreadLength() >= 4)
                 {
                     // If client's received data contains a packet
-                    _packetLength = receivedData.ReadInt();
+                    _packetLength = receivedData.ReadUlong();
                     if (_packetLength <= 0)
                     {
                         // If packet contains no data
@@ -127,12 +138,15 @@ namespace Assets.Scripts.Net.Client
                 while (_packetLength > 0 && _packetLength <= receivedData.UnreadLength())
                 {
                     // While packet contains data AND packet data length doesn't exceed the length of the packet we're reading
-                    byte[] _packetBytes = receivedData.ReadBytes(_packetLength);
+                    byte[] _packetBytes = receivedData.ReadBytes((int)_packetLength);
+
+                    _inspector.SetPacket(receivedData);
+
                     ThreadManager.ExecuteOnMainThread(() =>
                     {
                         using (Packet _packet = new Packet(_packetBytes))
                         {
-                            UInt16 _packetId = _packet.ReadUint16();
+                            UInt16 _packetId = _packet.ReadUshort();
                             packetHandlers[_packetId](_packet); // Call appropriate method to handle the packet
                         }
                     });
@@ -141,7 +155,7 @@ namespace Assets.Scripts.Net.Client
                     if (receivedData.UnreadLength() >= 4)
                     {
                         // If client's received data contains another packet
-                        _packetLength = receivedData.ReadInt();
+                        _packetLength = receivedData.ReadUlong();
                         if (_packetLength <= 0)
                         {
                             // If packet contains no data
@@ -174,6 +188,13 @@ namespace Assets.Scripts.Net.Client
             public UdpClient socket;
             public IPEndPoint endPoint;
 
+            PacketInspector _inspector;
+
+            public UDP(PacketInspector insp)
+            {
+                _inspector = insp;
+            }
+
             public UDP()
             {
                 endPoint = new IPEndPoint(IPAddress.Parse(Instance().ip), Instance().port);
@@ -200,7 +221,7 @@ namespace Assets.Scripts.Net.Client
             {
                 try
                 {
-                    _packet.InsertInt(Instance().myId); // Insert the client's ID at the start of the packet
+                    _packet.InsertUint(Instance().myId); // Insert the client's ID at the start of the packet
                     if (socket != null)
                     {
                         socket.BeginSend(_packet.ToArray(), _packet.Length(), null, null);
@@ -242,6 +263,8 @@ namespace Assets.Scripts.Net.Client
                 {
                     int _packetLength = _packet.ReadInt();
                     _data = _packet.ReadBytes(_packetLength);
+                    
+                    
                 }
 
                 ThreadManager.ExecuteOnMainThread(() =>
@@ -280,8 +303,10 @@ namespace Assets.Scripts.Net.Client
         {
             InitializeClientData();
 
-            tcp = new TCP();
-            udp = new UDP();
+            _inspector = GameObject.Find("Network Manager").GetComponent<PacketInspector>();
+
+            tcp = new TCP(_inspector);
+            udp = new UDP(_inspector);
         }
 
         private void OnApplicationQuit()

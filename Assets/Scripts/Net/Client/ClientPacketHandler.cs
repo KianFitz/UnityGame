@@ -12,7 +12,7 @@ namespace Assets.Scripts.Net.Client
     {
         internal static void HandleWelcomeMessage(Packet _packet)
         {
-            int _myId = _packet.ReadInt();
+            uint _myId = _packet.ReadUint();
             string _msg = _packet.ReadString();
 
             Debug.Log($"Message from server: {_msg}");
@@ -26,7 +26,7 @@ namespace Assets.Scripts.Net.Client
 
         internal static void HandleSpawnPlayer(Packet _packet)
         {
-            int _id = _packet.ReadInt();
+            uint _id = _packet.ReadUint();
             //string _username = _packet.ReadString();
             Vector3 _position = _packet.ReadVector3();
             Quaternion _rotation = _packet.ReadQuaternion();
@@ -36,7 +36,7 @@ namespace Assets.Scripts.Net.Client
 
         internal static void HandlePlayerRotation(Packet _packet)
         {
-            int _id = _packet.ReadInt();
+            uint _id = _packet.ReadUint();
             Quaternion rotation = _packet.ReadQuaternion();
 
             GameManager.players[_id].transform.rotation = rotation;
@@ -44,7 +44,7 @@ namespace Assets.Scripts.Net.Client
 
         internal static void HandlePlayerMovement(Packet _packet)
         {
-            int _id = _packet.ReadInt();
+            uint _id = _packet.ReadUint();
             Vector3 position = _packet.ReadVector3();
 
             GameManager.players[_id].transform.position = position;

@@ -9,7 +9,7 @@ namespace Assets.Scripts.Net.Client
 {
     public class PlayerManager : MonoBehaviour
     {
-        public int id;
+        public uint id;
         public string username;
     }
 }

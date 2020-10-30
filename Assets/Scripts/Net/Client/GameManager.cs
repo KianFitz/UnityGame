@@ -11,7 +11,7 @@ namespace Assets.Scripts.Net.Client
     {
         public static GameManager instance;
 
-        public static Dictionary<int, PlayerManager> players = new Dictionary<int, PlayerManager>();
+        public static Dictionary<uint, PlayerManager> players = new Dictionary<uint, PlayerManager>();
 
         public GameObject localPlayerPrefab;
         public GameObject playerPrefab;
@@ -39,7 +39,7 @@ namespace Assets.Scripts.Net.Client
         /// <param name="_name">The player's name.</param>
         /// <param name="_position">The player's starting position.</param>
         /// <param name="_rotation">The player's starting rotation.</param>
-        public void SpawnPlayer(int _id, Vector3 _position, Quaternion _rotation)
+        public void SpawnPlayer(uint _id, Vector3 _position, Quaternion _rotation)
         {
             GameObject _player;
             if (_id == Client.Instance().myId)

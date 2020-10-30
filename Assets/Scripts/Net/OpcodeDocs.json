@@ -1,0 +1,19 @@
+{
+	"opcodesDoc" : 
+	[
+	{ 
+		"name" 		: "SMSG_AUTH",
+		"opcodeInt" : 1,
+		"types" : [
+		{
+			"name" : "clientid",
+			"type" : "uint32"
+		},
+		{
+			"name" : "message",
+			"type" : "string"
+		},
+		]
+	}
+	]
+}

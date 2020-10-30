@@ -102,14 +102,14 @@ namespace Assets.Scripts.Net.Server
 
             private bool HandleData(byte[] newData)
             {
-                int _packetLength = 0;
+                ulong _packetLength = 0;
 
                 _receiveData.SetBytes(newData);
 
                 if (_receiveData.UnreadLength() >= 4)
                 {
                     // If client's received data contains a packet
-                    _packetLength = _receiveData.ReadInt();
+                    _packetLength = _receiveData.ReadUlong();
                     if (_packetLength <= 0)
                     {
                         // If packet contains no data
@@ -120,7 +120,7 @@ namespace Assets.Scripts.Net.Server
                 while (_packetLength > 0 && _packetLength <= _receiveData.UnreadLength())
                 {
                     // While packet contains data AND packet data length doesn't exceed the length of the packet we're reading
-                    byte[] _packetBytes = _receiveData.ReadBytes(_packetLength);
+                    byte[] _packetBytes = _receiveData.ReadBytes((int)_packetLength);
                     ThreadManager.ExecuteOnMainThread(() =>
                     {
                         using (Packet _packet = new Packet(_packetBytes))
@@ -134,7 +134,7 @@ namespace Assets.Scripts.Net.Server
                     if (_receiveData.UnreadLength() >= 4)
                     {
                         // If client's received data contains another packet
-                        _packetLength = _receiveData.ReadInt();
+                        _packetLength = _receiveData.ReadUlong();
                         if (_packetLength <= 0)
                         {
                             // If packet contains no data

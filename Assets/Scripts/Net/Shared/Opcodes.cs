@@ -8,7 +8,7 @@ namespace Assets.Scripts.Net.Shared
 {
     public static class Opcodes
     {
-        public enum Opcode
+        public enum Opcode : ushort
         {
             SMSG_WELCOME            = 0x001,
             CMSG_WELCOME_ACK        = 0x002,
